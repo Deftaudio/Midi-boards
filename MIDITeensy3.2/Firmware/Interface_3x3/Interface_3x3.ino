@@ -71,7 +71,7 @@ void loop() {
     } else {
       // SysEx messages are special.  The message length is given in data1 & data2
       unsigned int SysExLength = data1 + data2 * 256;
-      usbMIDI.sendSysEx(SysExLength, MIDI1.getSysExArray(), true, 1);
+      usbMIDI.sendSysEx(SysExLength, MIDI2.getSysExArray(), true, 1);
     }
     activity = true;
   }
@@ -90,7 +90,7 @@ void loop() {
     } else {
       // SysEx messages are special.  The message length is given in data1 & data2
       unsigned int SysExLength = data1 + data2 * 256;
-      usbMIDI.sendSysEx(SysExLength, MIDI1.getSysExArray(), true, 2);
+      usbMIDI.sendSysEx(SysExLength, MIDI3.getSysExArray(), true, 2);
     }
     activity = true;
   }
