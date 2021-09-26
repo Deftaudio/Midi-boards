@@ -25,7 +25,8 @@ The detailed SW guide covers how to enable audio and MIDI components in Raspbian
 
 
   ### BOM list:
-https://docs.google.com/spreadsheets/d/15D16pYKxWzvwlihMUm6H49rWIW-DiubtF_ozgL0KMLI/edit?usp=sharing
+https://github.com/Deftaudio/Midi-boards/raw/master/Eurorack_RPi/Eurorack_RPi_synth_kit_BOM.xlsx
+
 *Links are for the reference only. You don't need to buy from this suppliers as all parts are widely available in many places.*  
 
 **ASSEMBLY VIDEO:**
