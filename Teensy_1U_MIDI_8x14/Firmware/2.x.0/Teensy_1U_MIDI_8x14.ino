@@ -15,7 +15,7 @@
 //BUILD CONFIGURATION 
 
 //Version
-const char version[15] { "Version 2.0" };
+const char version[15] { "Version 2.1" };
 
 //Display init
 #define OLED_ROTATION
@@ -105,7 +105,7 @@ struct Voice {
 
 // Voice pool
 Voice voices[MAX_POLYPHONY];
-
+const int retriggerDelay = 1;
 
 
 // Create the Serial MIDI ports
@@ -417,8 +417,9 @@ void setup() {
 
 
 
+
   if (currentPolyphony > 0) {
-    StatusDisplay("Luma-mu Poly mode ");
+    StatusDisplay("Luma-mu Voice mode ");
     StatusDisplay("Total Voices = " + String(currentPolyphony));
   }
 
@@ -1169,12 +1170,22 @@ void handleNoteOn(byte inChannel, byte inNote, byte inVelocity) {
 
   //Luma-mu code
   if ((usbMIDI.getCable() == 15) && (inChannel == Config.lumaMuChannel)) {
+    
+    #ifdef VOICE_DEBUG
+    StatusDisplay("New Note:" + String(inNote));
+    #endif
 
     //Get Voice number
     int voiceIndex = findFreeVoice();
-    if (voiceIndex == -1) {
+  /*
+    if (voiceIndex == -1) {      
       voiceIndex = stealOldestVoice();
-      if (voiceIndex >= 0) {
+*/
+
+    //New code for note OFF with roundrobin
+    if (voices[voiceIndex].active) {
+
+      //if (voiceIndex >= 0) {
         digitalWriteFast(TRS_DATA_PIN[voices[voiceIndex].lumamuGatePort], LOW);
         //0=stopPWM 1=Pause only 2=Reset only 3=stopALL
         switch (Config.lumaMuNoteOffMode) {
@@ -1209,8 +1220,11 @@ void handleNoteOn(byte inChannel, byte inNote, byte inVelocity) {
         #ifdef VOICE_DEBUG
         StatusDisplay("V:" + String(voiceIndex) + " OFF");
         #endif
-      }
+        delay(retriggerDelay);
+      //}
     }
+    
+    //Generate new voice
     if (voiceIndex >= 0) {
       voices[voiceIndex].active = true;
       voices[voiceIndex].note = inNote;
@@ -1334,9 +1348,11 @@ void handleNoteOff(byte inChannel, byte inNote, byte inVelocity) {
           digitalWriteFast(TRS_DATA_PIN[voices[i].lumamuResetPort], HIGH);     
           break;
         }
+        
         #ifdef VOICE_DEBUG
         StatusDisplay("V:" + String(i) + " OFF");
         #endif
+
         break;
       }
     }
@@ -1396,6 +1412,7 @@ void handlePitchBend(byte channel, int pitch) {
   if (usbMIDI.getCable() == 15 && channel == Config.lumaMuChannel) {
 
     pitchBendLumaMu = pitch;
+
     #ifdef VOICE_DEBUG
     StatusDisplay("PitchBend " + String(pitchBendLumaMu));
     #endif
@@ -1470,7 +1487,8 @@ int findFreeVoice() {
 //  for (int i = 0; i < currentPolyphony; i++) {
 //    if (!voices[i].active) return i;
 //  }
-
+  
+  if (currentPolyphony ==1) return 0;
 
 //with round robin
   int tries = 0;
@@ -1483,12 +1501,20 @@ int findFreeVoice() {
 
   nextVoiceIndex = (i + 1) % currentPolyphony;
 
+  #ifdef VOICE_DEBUG
+  StatusDisplay("nextVoiceIndex:" + String(nextVoiceIndex));
+  StatusDisplay("i:" + String(i));
+  #endif
+  
   if (i >= 0) return i;
     else return -1;
 
 }
 
 int stealOldestVoice() {
+  
+  if (currentPolyphony == 1) return 0;
+  
   int oldestIndex = -1;
   unsigned long oldestTime = millis();
 
@@ -1498,7 +1524,6 @@ int stealOldestVoice() {
       oldestIndex = i;
     }
   }
-
   return oldestIndex;
 }
 
