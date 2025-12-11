@@ -1,0 +1,6 @@
+v0.4 -- Added Deftaudio scripts for PicoROM support. Added support for sample names from 		filenames (8 characters).
+
+v0.3 -- Fixed noise at sample end in 2X, 6X, 8X versions.
+        Adjusted sample rate to preserve pitch; total sample time reduced to 1.27s.
+		
+v0.2 -- MAJOR BUG: Fixed missing samples in 5X, 7X, and 8X ROMs.

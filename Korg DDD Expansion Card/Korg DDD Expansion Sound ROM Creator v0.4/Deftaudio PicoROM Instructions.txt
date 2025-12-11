@@ -1,0 +1,10 @@
+Please, refer to the "Korg DDD Expansion ROM Encoder Instructions" for the original instructions and project motivation.
+
+This section only covers DeftAudio additions for processing and converting WAV data into PicoROM format.
+
+Each DeftAudio memory expansion card holds eight banks of data (32kb each), which can be selected by three DIP switches (binary code).
+Within the bank, up to 8 sounds can be stored. Unlike the original scripts, the new additions are automatically scanning the content of [WAV_IN] directory and pick the correct processing scripts based on the number of files within each bank directory.
+This then automatically truncates with input files to maximize the capacity usage. Having only about 1.5s time total for the bank, you should make your own decision where to load max 8 sounds or leave it for 1 sound (or anywhere in between) depending on the length of the original samples.
+Keep in mind to put WAV files on [WAV_IN]\BankX directories ONLY. WAV files in the root [WAV_IN] directory or any other subdirectories are ignored.
+
+There are also some changes in the WAV data processing. The native samplerate of Korg DDD-1/DDD-5 is 25272Hz, original scripts use 25640Hz for the samplerate conversion. This leads that the normal pitch of the drum sample to achieve around zero tuning (0-127), which makes it not possible to pitch it lower to get even more artifacts. In DeftAudio modifications this changed to 44100Hz, which sets the tuning closer to the middle position 64 (0-127) and allows to pitch down the original samples. As a consequence of this is that it takes up more memory space. This parameter can be changed in each Deftaudio_PicoROM_Process_Xx.bat script.

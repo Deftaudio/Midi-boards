@@ -1,0 +1,52 @@
+========================================
+KORG DDD-1 & DDD-5 Expansion ROM Creator
+========================================
+
+Designed for use with DDD ROM cards with removable ROM chips, such as:
+https://korgdddmods.blogspot.com/
+
+Each ROM can hold approximately 1.27 seconds worth of sound. This 1.27 seconds 
+can be divided up into as many as eight samples, or the full length can be 
+dedicated to only one sample.
+
+In theory, a ROM with two samples could have one sample of 0.8 second, and a 
+second sample of 0.47 seconds, or a ROM with three samples could have one 
+sample at 0.8 second and two others at 0.23 seconds each -- the permutations are 
+nearly endless.
+
+Technically, each sample in the ROM can be any length, so long as the total 
+sample time does not exceed 1.27 seconds. However, templates have been provided 
+for ease-of-use. The templates expect a certain number of WAV samples, and 
+that each WAV sample does not significantly exceed the allocated time length.
+
+Examples:
+
+- The 1X template expects only one sample which has 1.27 seconds or less of 
+  meaningful data. Meaningful data being non-silence or at least the initial 
+  body of the sample, possibly discounting the decay portion such as reverb 
+  tails or cymbal fades.
+
+- The 2X template expects two samples which are 0.63 seconds or less each.
+
+------------
+ROM CREATION
+------------
+
+Input WAVs can be of nearly any type, sample rate, and bit-depth. The WAVs 
+will automatically be conformed to the proper format and forced to the best 
+fit possible. Time length is the most important criteria to consider, as WAVs 
+which are longer than expected will be shortened to the maximum allowed 
+length; this truncation may not give artistically suitable results.
+
+- Place up to eight WAV files into the "[WAV_IN]" folder.
+- Rename the WAV files in sequential numeric order (1.WAV, 2.WAV, etc.) 
+- Run the template which corresponds to the amount of WAV files to be added. 
+  Ex: Select the "Korg DDD Expansion Sound ROM Encoder (standard, 5X)" if five 
+      WAV files have been placed into the "[WAV_IN]" folder.
+- Burn resulting binary to a 27256 (DIP28) EPROM.
+
+--------------------
+OTHER CONSIDERATIONS
+--------------------
+
+Note: Do not alter the "tools" folder or its contents.
