@@ -15,7 +15,7 @@ from adafruit_hid.keycode import Keycode
 
 
 import usb_midi
-usb_midi.set_names(streaming_interface_name="Deftaudio MidiKnob", audio_control_interface_name="Deftaudio MidiKnob", in_jack_name="MidiKnob input", out_jack_name="MidiKnob output")
+usb_midi.set_names(streaming_interface_name="Deftaudio MidiKnob Basic", audio_control_interface_name="Deftaudio MidiKnob", in_jack_name="MidiKnob input", out_jack_name="MidiKnob output")
 
 import adafruit_midi
 from adafruit_midi.control_change import ControlChange
@@ -103,30 +103,30 @@ sw2_2.pull = digitalio.Pull.UP
 
 
 def checkMode():
-        
+
     #MIDI all down
-    if sw1_1.value==0 and sw1_2.value==1 and sw2_1.value==0 and sw2_2.value==1:
+    if sw1_1.value==0 and sw1_2.value==1 and sw2_1.value==1 and sw2_2.value==0:
             return 0
-    if sw1_1.value==1 and sw1_2.value==1 and sw2_1.value==0 and sw2_2.value==1:
+    if sw1_1.value==0 and sw1_2.value==1 and sw2_1.value==1 and sw2_2.value==1:
             return 1
-    if sw1_1.value==1 and sw1_2.value==0 and sw2_1.value==0 and sw2_2.value==1:
+    if sw1_1.value==0 and sw1_2.value==1 and sw2_1.value==0 and sw2_2.value==1:
             return 2 
     
     #SOUND
-    if sw1_1.value==0 and sw1_2.value==1 and sw2_1.value==1 and sw2_2.value==0:
-            return 3
-    if sw1_1.value==1 and sw1_2.value==1 and sw2_1.value==1 and sw2_2.value==0:
-            return 4
     if sw1_1.value==1 and sw1_2.value==0 and sw2_1.value==1 and sw2_2.value==0:
-            return 5
-        
-    #MIDDLE
-    if sw1_1.value==0 and sw1_2.value==1 and sw2_1.value==1 and sw2_2.value==1:
-            return 6   
+            return 3
     if sw1_1.value==1 and sw1_2.value==0 and sw2_1.value==1 and sw2_2.value==1:
-            return 8
+            return 4
+    if sw1_1.value==1 and sw1_2.value==0 and sw2_1.value==0 and sw2_2.value==1:
+            return 5
+           
+    #MIDDLE
+    if sw1_1.value==1 and sw1_2.value==1 and sw2_1.value==1 and sw2_2.value==0:
+            return 6   
     if sw1_1.value==1 and sw1_2.value==1 and sw2_1.value==1 and sw2_2.value==1:
-            return 7      
+            return 7
+    if sw1_1.value==1 and sw1_2.value==1 and sw2_1.value==0 and sw2_2.value==1:
+            return 8      
     
 
 #Encoder Configuration
@@ -290,8 +290,8 @@ while True:
 
     if checkMode() != mode:
         mode = checkMode()
-        #print("Current mode:")
-        #print(mode)
+        print("Current mode:")
+        print(mode)
         if mode == 0 or mode == 1 or mode == 2:
             led1.value = True
             led2.value = False
@@ -424,15 +424,19 @@ while True:
         if mode == 3:
             kbd.send(Keycode.WINDOWS, Keycode.SHIFT, Keycode.A)
             kbd.release_all()
+            button_state = None
+            
             
        # Zoom camera on/off shortcut
         elif mode == 4:
             kbd.send(Keycode.WINDOWS, Keycode.SHIFT, Keycode.V)
             kbd.release_all()
+            button_state = None
             
         elif mode == 5:
             kbd.send(Keycode.SPACEBAR)
             kbd.release_all()
+            button_state = None
             
         
        # Note Off on release

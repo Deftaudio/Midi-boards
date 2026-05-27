@@ -15,7 +15,7 @@ from adafruit_hid.keycode import Keycode
 
 
 import usb_midi
-usb_midi.set_names(streaming_interface_name="Deftaudio MidiKnob", audio_control_interface_name="Deftaudio MidiKnob", in_jack_name="MidiKnob input", out_jack_name="MidiKnob output")
+usb_midi.set_names(streaming_interface_name="Deftaudio MidiKnob XL", audio_control_interface_name="Deftaudio MidiKnob", in_jack_name="MidiKnob input", out_jack_name="MidiKnob output")
 
 import adafruit_midi
 from adafruit_midi.control_change import ControlChange
@@ -56,7 +56,7 @@ USBmidi = [adafruit_midi.MIDI(midi_in=usb_midi.ports[0], in_channel=(0,1,2,3,4,5
              adafruit_midi.MIDI(midi_in=usb_midi.ports[0], in_channel=(), midi_out=usb_midi.ports[1], out_channel=13),
              adafruit_midi.MIDI(midi_in=usb_midi.ports[0], in_channel=(), midi_out=usb_midi.ports[1], out_channel=14),
              adafruit_midi.MIDI(midi_in=usb_midi.ports[0], in_channel=(), midi_out=usb_midi.ports[1], out_channel=15)]
-             
+
 
 uart = busio.UART(board.TX, rx=None, baudrate=31250)
 HWmidi = [adafruit_midi.MIDI(midi_out=uart, out_channel=0),
@@ -75,15 +75,15 @@ HWmidi = [adafruit_midi.MIDI(midi_out=uart, out_channel=0),
           adafruit_midi.MIDI(midi_out=uart, out_channel=13),
           adafruit_midi.MIDI(midi_out=uart, out_channel=14),
           adafruit_midi.MIDI(midi_out=uart, out_channel=15)]
-          
+
 
 def clamp(n, minn, maxn):
     return max(min(maxn, n), minn)
 
-   
-    
 
-#SPDT LEFT Switch Configuration 
+
+
+#SPDT LEFT Switch Configuration
 sw1_1 = digitalio.DigitalInOut(board.GP4)
 sw1_1.direction = digitalio.Direction.INPUT
 sw1_1.pull = digitalio.Pull.UP
@@ -92,7 +92,7 @@ sw1_2 = digitalio.DigitalInOut(board.GP5)
 sw1_2.direction = digitalio.Direction.INPUT
 sw1_2.pull = digitalio.Pull.UP
 
-#SPDT RIGHT Switch Configuration 
+#SPDT RIGHT Switch Configuration
 sw2_1 = digitalio.DigitalInOut(board.GP14)
 sw2_1.direction = digitalio.Direction.INPUT
 sw2_1.pull = digitalio.Pull.UP
@@ -103,31 +103,31 @@ sw2_2.pull = digitalio.Pull.UP
 
 
 def checkMode():
-        
+
     #MIDI all down
-    if sw1_1.value==0 and sw1_2.value==1 and sw2_1.value==0 and sw2_2.value==1:
-            return 0
-    if sw1_1.value==1 and sw1_2.value==1 and sw2_1.value==0 and sw2_2.value==1:
-            return 1
-    if sw1_1.value==1 and sw1_2.value==0 and sw2_1.value==0 and sw2_2.value==1:
-            return 2 
-    
-    #SOUND
     if sw1_1.value==0 and sw1_2.value==1 and sw2_1.value==1 and sw2_2.value==0:
-            return 3
-    if sw1_1.value==1 and sw1_2.value==1 and sw2_1.value==1 and sw2_2.value==0:
-            return 4
-    if sw1_1.value==1 and sw1_2.value==0 and sw2_1.value==1 and sw2_2.value==0:
-            return 5
-        
-    #MIDDLE
+            return 0
     if sw1_1.value==0 and sw1_2.value==1 and sw2_1.value==1 and sw2_2.value==1:
-            return 0   
-    if sw1_1.value==1 and sw1_2.value==0 and sw2_1.value==1 and sw2_2.value==1:
             return 1
+    if sw1_1.value==0 and sw1_2.value==1 and sw2_1.value==0 and sw2_2.value==1:
+            return 2
+
+    #SOUND
+    if sw1_1.value==1 and sw1_2.value==0 and sw2_1.value==1 and sw2_2.value==0:
+            return 3
+    if sw1_1.value==1 and sw1_2.value==0 and sw2_1.value==1 and sw2_2.value==1:
+            return 4
+    if sw1_1.value==1 and sw1_2.value==0 and sw2_1.value==0 and sw2_2.value==1:
+            return 5
+
+    #MIDDLE
+    if sw1_1.value==1 and sw1_2.value==1 and sw2_1.value==1 and sw2_2.value==0:
+            return 6
     if sw1_1.value==1 and sw1_2.value==1 and sw2_1.value==1 and sw2_2.value==1:
-            return 2      
-    
+            return 7
+    if sw1_1.value==1 and sw1_2.value==1 and sw2_1.value==0 and sw2_2.value==1:
+            return 8
+
 
 #Encoder Configuration
 encoder = rotaryio.IncrementalEncoder(board.GP1, board.GP2)
@@ -137,7 +137,7 @@ button.direction = digitalio.Direction.INPUT
 button.pull = digitalio.Pull.UP
 
 # Button timing parameters
-DOUBLE_TAP_TIME = 0.15 # seconds (300–400 ms typical)
+DOUBLE_TAP_TIME = 0.20   # seconds (300–400 ms typical)
 last_press_time = 0
 waiting_for_second = False
 
@@ -253,11 +253,11 @@ def MidiCapture():
     pixel.write()
     capture = True
     time.sleep(0.5)
-    
+
     while capture:
         #Parsing USB MIDI Input
         msg = USBmidi[0].receive()
-        
+
         if msg is not None:
             # Note On/Off
             if isinstance(msg, NoteOn) or isinstance(msg, NoteOff):
@@ -266,14 +266,14 @@ def MidiCapture():
                 midi_channel[mode] = msg.channel+1
                 writeNVM()
                 capture = False
-            
+
             if isinstance(msg, ControlChange):
                 cc_number[mode] = msg.control      # CC number (0–127)
                 midi_channel[mode] = msg.channel+1
                 #print(f"Note={msg.control} ch={msg.channel}")
                 writeNVM()
                 capture = False
-        
+
         if not button.value:
             capture = False
 
@@ -281,29 +281,29 @@ readNVM()
 
 while True:
     LED_activity = False;
-    
+
     current_position = encoder.position
     position_change = current_position - last_position
-    
-    
+
+
     #cc_value = clamp(current_position, 0, 127)
 
     if checkMode() != mode:
         mode = checkMode()
-        #print("Current mode:")
-        #print(mode)
+        print("Current mode:")
+        print(mode)
         if mode == 0 or mode == 1 or mode == 2:
             led1.value = True
             led2.value = False
-            
+
         elif mode == 3 or mode == 4 or mode == 5:
             led1.value = False
             led2.value = True
-        
+
         elif mode == 6 or mode == 7 or mode == 8:
             led1.value = True
             led2.value = True
-               
+
 
     #Parsing USB MIDI Input
     msg = USBmidi[0].receive()
@@ -332,7 +332,7 @@ while True:
         elif isinstance(msg, TimingClock):
         #and running:
             tick_count += 1
-            
+
             if tick_count == 24 or tick_count == 48 or tick_count == 72 or tick_count == 96:
                 #print("Quarter note")
                 led1.value = False
@@ -350,12 +350,12 @@ while True:
         for _ in range(position_change):
             if mode == 3 or mode == 4 or mode == 5:
                 cc.send(ConsumerControlCode.VOLUME_INCREMENT)
-            
+
             elif mode==0 or mode==1 or mode==2:
                 cc_value[mode] +=position_change
                 cc_value[mode] = clamp(cc_value[mode], 0, 127)
-            
-            
+
+
     elif position_change < 0:
         for _ in range(-position_change):
             if mode==3 or mode==4 or mode==5:
@@ -364,22 +364,23 @@ while True:
             elif mode==0 or mode==1 or mode==2:
                 cc_value[mode] +=position_change
                 cc_value[mode] = clamp(cc_value[mode], 0, 127)
-               
-            
+
+
     for i in range(3):
         if (cc_value[i] - cc_value_old[i])!= 0:
+        #print("Raw value:", current_position, "MIDI Value:", cc_value)
         #if mode==0 or mode==1 or mode==2:
             USBmidi[midi_channel[i]-1].send(ControlChange(cc_number[i], cc_value[i]))
             HWmidi[midi_channel[i]-1].send(ControlChange(cc_number[i], cc_value[i]))
-    
-    
+
+
     last_position = current_position
-    
+
     if mode==0 or mode==1 or mode==2:
         cc_value_old[mode] = cc_value[mode]
-    
 
-    
+
+
     if not button.value and button_state is None:
         button_state = "pressed"
         if mode==0 or mode==1 or mode==2:
@@ -388,7 +389,7 @@ while True:
             pixel[0] = (255,0,0)
             pixel.write()
         #time.sleep(0.2)
-    
+
         now = time.monotonic()
 
         # simple debounce
@@ -407,39 +408,37 @@ while True:
           #      pass
 
 
-    
-    
-    
+
+
+
     if button.value and button_state == "pressed":
-       # #print("Button pressed.")
+       # print("Button pressed.")
        # cc.send(ConsumerControlCode.PLAY_PAUSE)
        # cc.send(ConsumerControlCode.MUTE)
-       
+
        # Phone mute - seems not working
        # cc.send(47)
-       
+
        # Zoom mic mute shortcut
-        
+
         if mode == 3:
             kbd.send(Keycode.WINDOWS, Keycode.SHIFT, Keycode.A)
-            time.sleep(0.02)
             kbd.release_all()
             button_state = None
-            
+
+
        # Zoom camera on/off shortcut
         elif mode == 4:
             kbd.send(Keycode.WINDOWS, Keycode.SHIFT, Keycode.V)
-            time.sleep(0.02)
             kbd.release_all()
             button_state = None
-            
+
         elif mode == 5:
             kbd.send(Keycode.SPACEBAR)
-            time.sleep(0.02)
             kbd.release_all()
             button_state = None
-            
-        
+
+
        # Note Off on release
         elif mode==0 or mode==1 or mode==2:
             USBmidi[midi_channel[mode]-1].send(NoteOff(note_number[mode], 127))
@@ -447,28 +446,28 @@ while True:
             pixel[0] = (0,0,0)
             pixel.write()
             button_state = None
-    
-    
-    
+
+
+
     # Button timeout → single tap
     if waiting_for_second and (time.monotonic() - last_press_time) > DOUBLE_TAP_TIME:
         #print("SINGLE TAP")
         waiting_for_second = False
-        
-        
-        
-        
+
+
+
+
     #LED indication
     if LedMidiClock.elapsed() > 20:
         led2.value = False
-        led1.value = True    
+        led1.value = True
         LedMidiClock.reset()
-        
+
     if LedBarStart.elapsed() > 20 and not running:
         pixel[0] = (0,0,0)
         pixel.write()
         LedBarStart.reset()
-    
+
     if LedBarStart.elapsed() > 20 and running:
         pixel[0] = (20,20,20)
         pixel.write()
